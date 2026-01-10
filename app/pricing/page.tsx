@@ -1,33 +1,32 @@
 "use client";
 
-async function go(path: string) {
+const SITE = process.env.NEXT_PUBLIC_SITE_URL;
+
+async function go(apiPath: string) {
   try {
-    const res = await fetch(path, { method: "POST" });
-
-    const text = await res.text(); // always safe
-    let data: any = null;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      // Not JSON (likely HTML error page)
+    if (!SITE) {
+      alert("Missing NEXT_PUBLIC_SITE_URL on the frontend.");
+      return;
     }
+
+    const url = `${SITE}${apiPath}`;
+    const res = await fetch(url, { method: "POST" });
+
+    const text = await res.text();
+    let data: any = null;
+    try { data = JSON.parse(text); } catch {}
 
     if (!res.ok) {
       alert(`Checkout API error (${res.status}). Response:\n\n${text.slice(0, 600)}`);
       return;
     }
 
-    if (data?.url && typeof data.url === "string") {
+    if (data?.url) {
       window.location.assign(data.url);
       return;
     }
 
-    alert(
-      `No checkout url returned.\n\nStatus: ${res.status}\nContent-Type: ${res.headers.get(
-        "content-type"
-      )}\n\nResponse:\n${text.slice(0, 600)}`
-    );
+    alert(`No checkout url returned.\n\nResponse:\n${text.slice(0, 600)}`);
   } catch (err: any) {
     alert(`Request failed: ${err?.message || String(err)}`);
   }
@@ -38,7 +37,7 @@ export default function PricingPage() {
     <div className="container" style={{ padding: "40px 0" }}>
       <h1>Pricing</h1>
       <p className="muted">
-        Clicking a plan should open Stripe Checkout. If it doesn’t, you’ll see the exact API response.
+        Secure checkout by Stripe. (Calls backend using NEXT_PUBLIC_SITE_URL)
       </p>
 
       <div className="featureGrid" style={{ marginTop: 16 }}>
