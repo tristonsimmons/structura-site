@@ -1,17 +1,45 @@
 "use client";
 
 async function go(path: string) {
-  const res = await fetch(path, { method: "POST" });
-  const data = await res.json();
-  if (data?.url) window.location.href = data.url;
-  else alert("Stripe checkout did not return a URL. Check Vercel logs/env vars.");
+  try {
+    const res = await fetch(path, { method: "POST" });
+
+    const text = await res.text(); // always safe
+    let data: any = null;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      // Not JSON (likely HTML error page)
+    }
+
+    if (!res.ok) {
+      alert(`Checkout API error (${res.status}). Response:\n\n${text.slice(0, 600)}`);
+      return;
+    }
+
+    if (data?.url && typeof data.url === "string") {
+      window.location.assign(data.url);
+      return;
+    }
+
+    alert(
+      `No checkout url returned.\n\nStatus: ${res.status}\nContent-Type: ${res.headers.get(
+        "content-type"
+      )}\n\nResponse:\n${text.slice(0, 600)}`
+    );
+  } catch (err: any) {
+    alert(`Request failed: ${err?.message || String(err)}`);
+  }
 }
 
 export default function PricingPage() {
   return (
     <div className="container" style={{ padding: "40px 0" }}>
       <h1>Pricing</h1>
-      <p className="muted">Choose monthly, pro, or lifetime access. Payments handled by Stripe (test mode).</p>
+      <p className="muted">
+        Clicking a plan should open Stripe Checkout. If it doesn’t, you’ll see the exact API response.
+      </p>
 
       <div className="featureGrid" style={{ marginTop: 16 }}>
         <div className="card">
