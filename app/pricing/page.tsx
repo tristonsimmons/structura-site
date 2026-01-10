@@ -1,44 +1,32 @@
 "use client";
 
-const SITE = process.env.NEXT_PUBLIC_SITE_URL;
-
 async function go(apiPath: string) {
-  try {
-    if (!SITE) {
-      alert("Missing NEXT_PUBLIC_SITE_URL on the frontend.");
-      return;
-    }
+  const origin = window.location.origin; // always correct for the domain you’re viewing
 
-    const url = `${SITE}${apiPath}`;
-    const res = await fetch(url, { method: "POST" });
+  const res = await fetch(`${origin}${apiPath}`, { method: "POST" });
+  const text = await res.text();
 
-    const text = await res.text();
-    let data: any = null;
-    try { data = JSON.parse(text); } catch {}
+  let data: any = null;
+  try { data = JSON.parse(text); } catch {}
 
-    if (!res.ok) {
-      alert(`Checkout API error (${res.status}). Response:\n\n${text.slice(0, 600)}`);
-      return;
-    }
-
-    if (data?.url) {
-      window.location.assign(data.url);
-      return;
-    }
-
-    alert(`No checkout url returned.\n\nResponse:\n${text.slice(0, 600)}`);
-  } catch (err: any) {
-    alert(`Request failed: ${err?.message || String(err)}`);
+  if (!res.ok) {
+    alert(`Checkout API error (${res.status}). Response:\n\n${text.slice(0, 900)}`);
+    return;
   }
+
+  if (data?.url) {
+    window.location.assign(data.url);
+    return;
+  }
+
+  alert(`No checkout url returned.\n\nResponse:\n${text.slice(0, 900)}`);
 }
 
 export default function PricingPage() {
   return (
     <div className="container" style={{ padding: "40px 0" }}>
       <h1>Pricing</h1>
-      <p className="muted">
-        Secure checkout by Stripe. (Calls backend using NEXT_PUBLIC_SITE_URL)
-      </p>
+      <p className="muted">Secure checkout by Stripe.</p>
 
       <div className="featureGrid" style={{ marginTop: 16 }}>
         <div className="card">
