@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabase } from "@/lib/supabaseClient";
+import { getSupabase } from "../../lib/supabaseClient";
 
 type Billing = { status: "active" | "inactive"; entitlement: string };
 
