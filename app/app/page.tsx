@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabaseBrowserClient } from "@/lib/supabaseClient";
+import { getSupabase } from "@/lib/supabaseClient";
 
 type Billing = { status: "active" | "inactive"; entitlement: string };
 
@@ -10,55 +10,59 @@ export default function AppHome() {
   const [email, setEmail] = useState<string | null>(null);
   const [billing, setBilling] = useState<Billing | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
     (async () => {
-      setErr(null);
-
-      let supabase;
       try {
-        supabase = supabaseBrowserClient();
+        // Show success banner if coming from Stripe
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("session_id")) {
+          setShowSuccess(true);
+          params.delete("session_id");
+          window.history.replaceState({}, "", `${window.location.pathname}`);
+        }
+
+        const supabase = getSupabase();
+        const { data } = await supabase.auth.getUser();
+        const userEmail = data.user?.email ?? null;
+
+        setEmail(userEmail);
+
+        if (!userEmail) {
+          window.location.href = "/login";
+          return;
+        }
+
+        const res = await fetch("/api/billing/status", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ email: userEmail }),
+        });
+
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          setErr(json?.error || "Failed to check billing status");
+          setLoading(false);
+          return;
+        }
+
+        setBilling(json);
+        setLoading(false);
+
+        if (json.status !== "active") {
+          window.location.href = "/pricing";
+        }
       } catch (e: any) {
-        setErr(e?.message || "Supabase client not configured");
+        setErr(e?.message || "Unexpected error");
         setLoading(false);
-        return;
-      }
-
-      const { data } = await supabase.auth.getUser();
-      const userEmail = data.user?.email ?? null;
-      setEmail(userEmail);
-
-      if (!userEmail) {
-        window.location.href = "/login";
-        return;
-      }
-
-      const res = await fetch("/api/billing/status", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: userEmail }),
-      });
-
-      const json = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setErr(json?.error || "Failed to check billing status");
-        setLoading(false);
-        return;
-      }
-
-      setBilling(json);
-      setLoading(false);
-
-      if (json.status !== "active") {
-        window.location.href = "/pricing";
       }
     })();
   }, []);
 
   async function signOut() {
     try {
-      const supabase = supabaseBrowserClient();
+      const supabase = getSupabase();
       await supabase.auth.signOut();
     } catch {}
     window.location.href = "/";
@@ -67,6 +71,22 @@ export default function AppHome() {
   return (
     <div className="container" style={{ padding: "40px 0" }}>
       <h1>Structura App</h1>
+
+      {showSuccess && (
+        <div
+          className="card"
+          style={{
+            marginTop: 16,
+            border: "1px solid rgba(0,255,150,0.35)",
+            background: "rgba(0,255,150,0.06)",
+          }}
+        >
+          <b>✅ Payment successful</b>
+          <p className="muted" style={{ marginTop: 6 }}>
+            Your access is now active. Welcome to Structura.
+          </p>
+        </div>
+      )}
 
       {loading && <p className="muted">Loading…</p>}
 
@@ -86,7 +106,9 @@ export default function AppHome() {
           </p>
 
           <div style={{ marginTop: 14 }}>
-            <button className="btn btnGhost" onClick={signOut}>Sign out</button>
+            <button className="btn btnGhost" onClick={signOut}>
+              Sign out
+            </button>
           </div>
         </div>
       )}
