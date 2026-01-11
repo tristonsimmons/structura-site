@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { getSupabase } from "../../lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
+
+function supabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(url, key);
+}
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,15 +17,14 @@ export default function LoginPage() {
   async function sendLink() {
     setMsg(null);
     try {
-      const supabase = getSupabase();
-      const { error } = await supabase.auth.signInWithOtp({
+      const { error } = await supabase().auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${window.location.origin}/app` },
       });
       if (error) setMsg(error.message);
       else setSent(true);
     } catch (e: any) {
-      setMsg(e?.message || "Supabase not configured");
+      setMsg(e?.message || "Login failed");
     }
   }
 

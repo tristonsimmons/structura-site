@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabase } from "../../lib/supabaseClient";
+import { createClient } from "@supabase/supabase-js";
 
 type Billing = { status: "active" | "inactive"; entitlement: string };
+
+function supabase() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  return createClient(url, key);
+}
 
 export default function AppHome() {
   const [loading, setLoading] = useState(true);
@@ -15,7 +21,6 @@ export default function AppHome() {
   useEffect(() => {
     (async () => {
       try {
-        // success banner if coming from Stripe
         const params = new URLSearchParams(window.location.search);
         if (params.get("session_id")) {
           setShowSuccess(true);
@@ -23,10 +28,8 @@ export default function AppHome() {
           window.history.replaceState({}, "", `${window.location.pathname}`);
         }
 
-        const supabase = getSupabase();
-        const { data } = await supabase.auth.getUser();
+        const { data } = await supabase().auth.getUser();
         const userEmail = data.user?.email ?? null;
-
         setEmail(userEmail);
 
         if (!userEmail) {
@@ -50,9 +53,7 @@ export default function AppHome() {
         setBilling(json);
         setLoading(false);
 
-        if (json.status !== "active") {
-          window.location.href = "/pricing";
-        }
+        if (json.status !== "active") window.location.href = "/pricing";
       } catch (e: any) {
         setErr(e?.message || "Unexpected error");
         setLoading(false);
@@ -62,8 +63,7 @@ export default function AppHome() {
 
   async function signOut() {
     try {
-      const supabase = getSupabase();
-      await supabase.auth.signOut();
+      await supabase().auth.signOut();
     } catch {}
     window.location.href = "/";
   }
@@ -93,9 +93,7 @@ export default function AppHome() {
       {err && (
         <div className="card" style={{ marginTop: 16 }}>
           <p>Error: {err}</p>
-          <a className="btn btnGhost" href="/pricing">
-            Go to pricing
-          </a>
+          <a className="btn btnGhost" href="/pricing">Go to pricing</a>
         </div>
       )}
 
@@ -108,9 +106,7 @@ export default function AppHome() {
           </p>
 
           <div style={{ marginTop: 14 }}>
-            <button className="btn btnGhost" onClick={signOut}>
-              Sign out
-            </button>
+            <button className="btn btnGhost" onClick={signOut}>Sign out</button>
           </div>
         </div>
       )}
