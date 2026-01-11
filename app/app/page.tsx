@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "@/lib/supabaseClient";
+import { supabaseBrowserClient } from "@/lib/supabaseClient";
 
 type Billing = { status: "active" | "inactive"; entitlement: string };
 
@@ -14,6 +14,16 @@ export default function AppHome() {
   useEffect(() => {
     (async () => {
       setErr(null);
+
+      let supabase;
+      try {
+        supabase = supabaseBrowserClient();
+      } catch (e: any) {
+        setErr(e?.message || "Supabase client not configured");
+        setLoading(false);
+        return;
+      }
+
       const { data } = await supabase.auth.getUser();
       const userEmail = data.user?.email ?? null;
       setEmail(userEmail);
@@ -41,14 +51,16 @@ export default function AppHome() {
       setLoading(false);
 
       if (json.status !== "active") {
-        // Not paid → send to pricing
         window.location.href = "/pricing";
       }
     })();
   }, []);
 
   async function signOut() {
-    await supabase.auth.signOut();
+    try {
+      const supabase = supabaseBrowserClient();
+      await supabase.auth.signOut();
+    } catch {}
     window.location.href = "/";
   }
 
