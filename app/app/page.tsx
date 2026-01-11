@@ -15,7 +15,7 @@ export default function AppHome() {
   useEffect(() => {
     (async () => {
       try {
-        // Show success banner if coming from Stripe
+        // success banner if coming from Stripe
         const params = new URLSearchParams(window.location.search);
         if (params.get("session_id")) {
           setShowSuccess(true);
@@ -93,7 +93,9 @@ export default function AppHome() {
       {err && (
         <div className="card" style={{ marginTop: 16 }}>
           <p>Error: {err}</p>
-          <a className="btn btnGhost" href="/pricing">Go to pricing</a>
+          <a className="btn btnGhost" href="/pricing">
+            Go to pricing
+          </a>
         </div>
       )}
 

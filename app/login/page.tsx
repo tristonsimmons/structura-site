@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabaseBrowserClient } from "../../lib/supabaseClient";
+import { getSupabase } from "../../lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,15 +11,15 @@ export default function LoginPage() {
   async function sendLink() {
     setMsg(null);
     try {
-      const supabase = supabaseBrowserClient();
+      const supabase = getSupabase();
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: { emailRedirectTo: `${window.location.origin}/app` },
       });
-      if (error) return setMsg(error.message);
-      setSent(true);
+      if (error) setMsg(error.message);
+      else setSent(true);
     } catch (e: any) {
-      setMsg(e?.message || "Supabase client not configured");
+      setMsg(e?.message || "Supabase not configured");
     }
   }
 
@@ -52,17 +52,11 @@ export default function LoginPage() {
         </div>
 
         {msg && <p style={{ marginTop: 12 }}>Error: {msg}</p>}
-        {sent && (
-          <p style={{ marginTop: 12 }} className="muted">
-            Check your inbox (and spam). Click the link to sign in.
-          </p>
-        )}
+        {sent && <p style={{ marginTop: 12 }} className="muted">Check your inbox (and spam).</p>}
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <a className="btn btnGhost" href="/pricing">
-          View pricing
-        </a>
+        <a className="btn btnGhost" href="/pricing">View pricing</a>
       </div>
     </div>
   );
