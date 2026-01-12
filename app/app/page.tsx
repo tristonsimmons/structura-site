@@ -68,6 +68,30 @@ export default function AppHome() {
     window.location.href = "/";
   }
 
+  async function openPortal() {
+    try {
+      const { data } = await supabase().auth.getUser();
+      const userEmail = data.user?.email;
+      if (!userEmail) return (window.location.href = "/login");
+
+      const res = await fetch("/api/stripe/portal", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: userEmail }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        alert(json?.error || "Could not open billing portal");
+        return;
+      }
+
+      window.open(json.url, "_blank", "noopener,noreferrer");
+    } catch (e: any) {
+      alert(e?.message || "Could not open billing portal");
+    }
+  }
+
   return (
     <div className="container" style={{ padding: "40px 0" }}>
       <h1>Structura App</h1>
@@ -105,7 +129,8 @@ export default function AppHome() {
             Plan: <b>{billing.entitlement}</b> — Status: <b>{billing.status}</b>
           </p>
 
-          <div style={{ marginTop: 14 }}>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+            <button className="btn btnPrimary" onClick={openPortal}>Manage billing</button>
             <button className="btn btnGhost" onClick={signOut}>Sign out</button>
           </div>
         </div>
