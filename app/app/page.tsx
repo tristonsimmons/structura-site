@@ -68,28 +68,23 @@ export default function AppHome() {
     window.location.href = "/";
   }
 
-  async function openPortal() {
-    try {
-      const { data } = await supabase().auth.getUser();
-      const userEmail = data.user?.email;
-      if (!userEmail) return (window.location.href = "/login");
+  async function openBilling() {
+  try {
+    const res = await fetch("/api/stripe/portal", { method: "POST" });
+    const json = await res.json();
 
-      const res = await fetch("/api/stripe/portal", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: userEmail }),
-      });
-
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(json?.error || "Could not open billing portal");
-        return;
-      }
-window.location.href = data.url;
-    } catch (e: any) {
-      alert(e?.message || "Could not open billing portal");
+    if (!res.ok) {
+      throw new Error(json?.error || "Could not create billing portal session");
     }
+    if (!json?.url) {
+      throw new Error("Missing portal url");
+    }
+
+    window.location.href = json.url; // open in same tab
+  } catch (e: any) {
+    alert(e?.message || "Could not open billing portal");
   }
+}
 
   return (
     <div className="container" style={{ padding: "40px 0" }}>
@@ -129,7 +124,7 @@ window.location.href = data.url;
           </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <button className="btn btnPrimary" onClick={openPortal}>Manage billing</button>
+            <button className="btn btnPrimary" <button onClick={openBilling}>Manage billing</button>
             <button className="btn btnGhost" onClick={signOut}>Sign out</button>
           </div>
         </div>
