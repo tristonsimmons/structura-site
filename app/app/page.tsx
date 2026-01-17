@@ -124,7 +124,7 @@ export default function AppHome() {
           </p>
 
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <button className="btn btnPrimary" <button onClick={openBilling}>Manage billing</button>
+            <button className="btn btnPrimary" onClick={openBilling}>Manage billing</button>
             <button className="btn btnGhost" onClick={signOut}>Sign out</button>
           </div>
         </div>
