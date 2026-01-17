@@ -85,8 +85,7 @@ export default function AppHome() {
         alert(json?.error || "Could not open billing portal");
         return;
       }
-
-      window.open(json.url, "_blank", "noopener,noreferrer");
+window.location.href = data.url;
     } catch (e: any) {
       alert(e?.message || "Could not open billing portal");
     }
