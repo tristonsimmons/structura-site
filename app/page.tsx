@@ -71,7 +71,7 @@ export default function Home() {
         <p className="muted">Start free. Upgrade when it pays for itself.</p>
         <div className="ctaRow">
           <a className="btn btnPrimary" href={signupUrl}>Start Free</a>
-          <a className="btn btnGhost" href={appUrl}>Open App</a>
+          <a href="/app" className="btn btnGhost">Open app</a>
         </div>
       </section>
     </div>
