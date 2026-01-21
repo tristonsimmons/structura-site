@@ -114,21 +114,20 @@ export default function AppHome() {
           <a className="btn btnGhost" href="/pricing">Go to pricing</a>
         </div>
       )}
+<div style={{ fontSize: 12, opacity: 0.8, marginTop: 10 }}>
+  Debug: loading={String(loading)} err={err || "none"} billingStatus={billing?.status || "null"}
+</div>
+      {{!loading && !err && billing?.status === "active" && (
+  <>
+    <div className="card">
+      <div style={{ marginBottom: 10 }}>
+        Plan: <b>{billing.entitlement}</b> — Status: <b>{billing.status}</b>
+      </div>
 
-      {!loading && !err && billing && (
-        <div className="card" style={{ marginTop: 16 }}>
-          <p className="muted">Signed in as</p>
-          <p style={{ fontWeight: 800 }}>{email}</p>
-          <p className="muted" style={{ marginTop: 10 }}>
-            Plan: <b>{billing.entitlement}</b> — Status: <b>{billing.status}</b>
-          </p>
-
-          <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-            <button className="btn btnPrimary" onClick={openBilling}>Manage billing</button>
-            <button className="btn btnGhost" onClick={signOut}>Sign out</button>
-          </div>
-        </div>
-      )}
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+        <button className="btn btnPrimary" onClick={openBilling}>Manage billing</button>
+        <button className="btn btnGhost" onClick={signOut}>Sign out</button>
+      </div>
     </div>
-  );
-}
+  </>
+)}
