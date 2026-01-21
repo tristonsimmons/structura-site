@@ -117,7 +117,7 @@ export default function AppHome() {
 <div style={{ fontSize: 12, opacity: 0.8, marginTop: 10 }}>
   Debug: loading={String(loading)} err={err || "none"} billingStatus={billing?.status || "null"}
 </div>
-      {{!loading && !err && billing?.status === "active" && (
+      {!loading && !err && billing?.status === "active" && (
   <>
     <div className="card">
       <div style={{ marginBottom: 10 }}>
