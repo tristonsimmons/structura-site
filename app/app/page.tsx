@@ -117,17 +117,22 @@ export default function AppHome() {
 <div style={{ fontSize: 12, opacity: 0.8, marginTop: 10 }}>
   Debug: loading={String(loading)} err={err || "none"} billingStatus={billing?.status || "null"}
 </div>
-      {!loading && !err && billing?.status === "active" && (
-  <>
-    <div className="card">
-      <div style={{ marginBottom: 10 }}>
-        Plan: <b>{billing.entitlement}</b> — Status: <b>{billing.status}</b>
-      </div>
 
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
-        <button className="btn btnPrimary" onClick={openBilling}>Manage billing</button>
-        <button className="btn btnGhost" onClick={signOut}>Sign out</button>
-      </div>
+{!loading && !err && billing?.status === "active" && (
+  <div className="card">
+    <div style={{ marginBottom: 10 }}>
+      Plan: <b>{billing.entitlement}</b> — Status: <b>{billing.status}</b>
     </div>
-  </>
+
+    <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 14 }}>
+      <button className="btn btnPrimary" onClick={openBilling}>
+        Manage billing
+      </button>
+
+      <button className="btn btnGhost" onClick={signOut}>
+        Sign out
+      </button>
+    </div>
+  </div>
 )}
+ 
