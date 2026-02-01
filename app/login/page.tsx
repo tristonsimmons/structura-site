@@ -17,16 +17,9 @@ export default function LoginPage() {
   async function sendLink() {
     setMsg(null);
     try {
-      const { error } = await supabase().auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
-      if (error) setMsg(error.message);
-      else setSent(true);
-    } catch (e: any) {
-      setMsg(e?.message || "Login failed");
-    }
-  }
+     const { error } = await supabase().auth.signInWithOtp({
+  email,
+  options: { emailRedirectTo: "https://www.structuratas.com/auth/callback" },
 
   return (
     <div className="container" style={{ padding: "40px 0", maxWidth: 520 }}>
