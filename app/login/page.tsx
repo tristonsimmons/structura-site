@@ -18,13 +18,15 @@ export default function LoginPage() {
   async function sendLink() {
     setMsg(null);
     setLoading(true);
+
     try {
       const { error } = await supabase().auth.signInWithOtp({
         email,
-        options: {
-          emailRedirectTo: "https://www.structuratas.com/auth/cb"
+        options: { emailRedirectTo: "https://www.structuratas.com/auth/callback" },
+      });
 
       if (error) throw error;
+
       setSent(true);
     } catch (e: any) {
       setMsg(e?.message || "Failed to send sign-in link");
