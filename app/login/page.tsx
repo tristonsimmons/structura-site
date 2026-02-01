@@ -13,13 +13,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   async function sendLink() {
     setMsg(null);
+    setLoading(true);
     try {
-     const { error } = await supabase().auth.signInWithOtp({
-  email,
-  options: { emailRedirectTo: "https://www.structuratas.com/auth/callback" },
+      const { error } = await supabase().auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: "https://www.structuratas.com/auth/callback",
+        },
+      });
+
+      if (error) throw error;
+      setSent(true);
+    } catch (e: any) {
+      setMsg(e?.message || "Failed to send sign-in link");
+      setSent(false);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="container" style={{ padding: "40px 0", maxWidth: 520 }}>
@@ -30,6 +45,7 @@ export default function LoginPage() {
         <label className="muted" style={{ display: "block", marginBottom: 8 }}>
           Email
         </label>
+
         <input
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -43,18 +59,29 @@ export default function LoginPage() {
             color: "white",
           }}
         />
+
         <div style={{ marginTop: 12 }}>
-          <button className="btn btnPrimary" onClick={sendLink} disabled={!email || sent}>
-            {sent ? "Link sent ✅" : "Send sign-in link"}
+          <button
+            className="btn btnPrimary"
+            onClick={sendLink}
+            disabled={!email || sent || loading}
+          >
+            {sent ? "Link sent ✅" : loading ? "Sending..." : "Send sign-in link"}
           </button>
         </div>
 
         {msg && <p style={{ marginTop: 12 }}>Error: {msg}</p>}
-        {sent && <p style={{ marginTop: 12 }} className="muted">Check your inbox (and spam).</p>}
+        {sent && (
+          <p style={{ marginTop: 12 }} className="muted">
+            Check your inbox (and spam).
+          </p>
+        )}
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <a className="btn btnGhost" href="/pricing">View pricing</a>
+        <a className="btn btnGhost" href="/pricing">
+          View pricing
+        </a>
       </div>
     </div>
   );
