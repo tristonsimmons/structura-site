@@ -22,9 +22,7 @@ export default function LoginPage() {
       const { error } = await supabase().auth.signInWithOtp({
         email,
         options: {
-          emailRedirectTo: "https://www.structuratas.com/auth/callback",
-        },
-      });
+          emailRedirectTo: "https://www.structuratas.com/auth/cb"
 
       if (error) throw error;
       setSent(true);
