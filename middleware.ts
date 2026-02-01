@@ -4,7 +4,6 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const host = req.headers.get("host") || "";
 
-  // Force www -> non-www
   if (host === "www.structuratas.com") {
     const url = req.nextUrl.clone();
     url.hostname = "structuratas.com";
