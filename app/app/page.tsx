@@ -68,10 +68,22 @@ export default function AppHome() {
     window.location.href = "/";
   }
 
-  async function openBilling() {
+async function openBilling() {
   try {
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const json = await res.json();
+    // Use the email you already stored from supabase().auth.getUser()
+    if (!email) {
+      alert("Missing email. Please log in again.");
+      window.location.href = "/login";
+      return;
+    }
+
+    const res = await fetch("/api/stripe/portal", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
+    const json = await res.json().catch(() => ({}));
 
     if (!res.ok) {
       throw new Error(json?.error || "Could not create billing portal session");
@@ -80,7 +92,7 @@ export default function AppHome() {
       throw new Error("Missing portal url");
     }
 
-    window.location.href = json.url; // open in same tab
+    window.location.href = json.url; // same tab
   } catch (e: any) {
     alert(e?.message || "Could not open billing portal");
   }
