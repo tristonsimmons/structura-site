@@ -16,6 +16,23 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   async function sendLink() {
+  setMsg(null);
+
+  try {
+    const redirectTo = `${window.location.origin}/auth/callback`;
+
+    const { error } = await supabase().auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: redirectTo },
+    });
+
+    if (error) throw error;
+
+    setSent(true);
+  } catch (e: any) {
+    setMsg(e?.message || "Failed to send sign-in link");
+  }
+}async function sendLink() {
     setMsg(null);
     setLoading(true);
 
